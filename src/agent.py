@@ -18,16 +18,22 @@ class KnowledgeBaseAgent:
         self.llm_fn = llm_fn
 
     def answer(self, question: str, top_k: int = 3) -> str:
-        retrieved = self.store.search(question, top_k=top_k)
-        context_parts = []
-        for index, item in enumerate(retrieved, start=1):
-            context_parts.append(f"[Chunk {index}] {item.get('content', '')}")
+        results = self.store.search(question, top_k=top_k)
+        context_blocks = []
+        for index, result in enumerate(results, start=1):
+            metadata = result.get("metadata", {})
+            source = metadata.get("source") or metadata.get("doc_id") or result.get("id", "unknown")
+            context_blocks.append(
+                f"[{index}] source={source} score={result.get('score', 0):.4f}\n"
+                f"{result.get('content', '')}"
+            )
 
+        context = "\n\n".join(context_blocks) if context_blocks else "No relevant context found."
         prompt = (
-            "Use the following retrieved context to answer the question.\n\n"
-            "Context:\n"
-            f"{'\n\n'.join(context_parts)}\n\n"
-            f"Question: {question}\n"
+            "Use the retrieved context to answer the question. "
+            "If the context is insufficient, say what is missing.\n\n"
+            f"Question:\n{question}\n\n"
+            f"Context:\n{context}\n\n"
             "Answer:"
         )
         return self.llm_fn(prompt)

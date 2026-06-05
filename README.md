@@ -228,6 +228,16 @@ Xem chi tiết tại `docs/SCORING.md`. Tóm tắt:
 
 ---
 
+## Chạy UI Phase 2
+
+```bash
+streamlit run app.py --server.address 127.0.0.1 --server.port 8501
+```
+
+UI hỗ trợ search thủ công, metadata filter, benchmark 5 queries, xem inventory tài liệu, và so sánh chunking strategy trên bộ data hiện tại.
+
+---
+
 ## Chạy Kiểm Thử
 
 ```bash
